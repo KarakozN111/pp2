@@ -1,5 +1,5 @@
 #with row txt
-
+#ex1
 import re
 txt = open('row.txt')
 #ex 1
