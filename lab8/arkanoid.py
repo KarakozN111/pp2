@@ -3,7 +3,7 @@ import random
 
 pygame.init()
 
-W, H = 1200, 800 #size of the screen
+W, H = 1200, 800 # размер экрана
 FPS = 60
 
 screen = pygame.display.set_mode((W, H), pygame.RESIZABLE)
@@ -12,49 +12,55 @@ done = False
 bg = (0, 0, 0)
 pygame.display.set_caption("Arkanoid *-*")
 
-# Paddle
-paddleW = 350
+# Определение размеров и скорости платформы
+paddleW = 300
 paddleH = 25
-paddleSpeed = 20
+paddleSpeed = 30
 paddle = pygame.Rect(W // 2 - paddleW // 2, H - paddleH - 30, paddleW, paddleH)
 
-# Ball
+# Определение размеров и скорости мяча
 ballRadius = 20
 ballSpeed = 6
 ball_rect = int(ballRadius * 2 ** 0.5)
 ball = pygame.Rect(random.randrange(ball_rect, W - ball_rect), H // 2, ball_rect, ball_rect)
 dx, dy = 1, -1
 
-# Game score
+# Определение счета игры
 game_score = 0
 game_score_fonts = pygame.font.SysFont('comicsansms', 40)
 game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (0, 0, 0))
 game_score_rect = game_score_text.get_rect()
 game_score_rect.center = (210, 20)
 
-# Catching sound
+# Звук при столкновении с блоком
 collision_sound = pygame.mixer.Sound('catch.mp3')
 
-# Block settings
+# Настройка блоков
 block_list = [pygame.Rect(10 + 120 * i, 50 + 70 * j, 100, 50) for i in range(10) for j in range(4)]
 color_list = [(random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255)) for _ in range(len(block_list))]
-unbreakable_indices = random.sample(range(len(block_list)), 9)  # Selecting 9 random bricks to be unbreakable
 
-# Game over Screen
+# Создание 10 неразрушимых блоков (белый цвет)
+unbreakable_indices = random.sample(range(len(block_list)), 10)  # Выбираем 10 случайных блоков, которые нельзя сломать
+
+for index in unbreakable_indices:
+    color_list[index] = (255, 255, 255)  # Устанавливаем цвет белым для неразрушимых блоков
+
+# Экран окончания игры
 losefont = pygame.font.SysFont('comicsansms', 40)
 losetext = losefont.render('Game Over :(', True, (255,255,255))
 losetextRect = losetext.get_rect()
 losetextRect.center = (W // 2, H // 2)
 
-# Win Screen
+# Экран победы
 winfont = pygame.font.SysFont('comicsansms', 40)
-wintext = losefont.render('You won :) ', True, (235, 245, 255))
+wintext = losefont.render('You won :) <3 ', True, (235, 245, 255))
 wintextRect = wintext.get_rect()
 wintextRect.center = (W // 2, H // 2)
 
-bonus_bricks = random.sample(range(len(block_list)), 6)  # 6 random BONUS BRICKS
-bonus_active = False  # Flag to indicate if the bonus is active
-bonus_paddle_width = paddleW  # Initial paddle width for bonus
+# Создание 6 случайных бонусных кирпичей
+bonus_bricks = random.sample(range(len(block_list)), 6)  
+bonus_active = False  # Флаг для индикации активного бонуса
+bonus_paddle_width = paddleW  # Начальная ширина платформы для бонуса
 
 def detect_collision(dx, dy, ball, rect):
     if dx > 0:
@@ -81,34 +87,29 @@ while not done:
 
     screen.fill(bg)
 
-    # Drawing blocks
+    # Рисование блоков
     for i, block in enumerate(block_list):
         color = color_list[i]
-        if i in unbreakable_indices:
-            pygame.draw.rect(screen, color, block)
-        else:
-            pygame.draw.rect(screen, color, block)
+        pygame.draw.rect(screen, color, block)
 
     pygame.draw.rect(screen, pygame.Color(255, 255, 255), paddle)
     pygame.draw.circle(screen, pygame.Color(255, 0, 0), ball.center, ballRadius)
 
-    # Ball movement
+    # Перемещение мяча
     ball.x += ballSpeed * dx
     ball.y += ballSpeed * dy
 
-    # Collision left and right
+    # Обработка столкновений с краями экрана
     if ball.centerx < ballRadius or ball.centerx > W - ballRadius:
         dx = -dx
-
-    # Collision top
     if ball.centery < ballRadius + 50:
         dy = -dy
 
-    # Collision with paddle
+    # Обработка столкновения с платформой
     if ball.colliderect(paddle) and dy > 0:
         dx, dy = detect_collision(dx, dy, ball, paddle)
 
-    # Collision blocks
+    # Обработка столкновений с блоками
     hitIndex = ball.collidelist(block_list)
 
     if hitIndex != -1:
@@ -124,11 +125,11 @@ while not done:
             game_score += 1
             collision_sound.play()
 
-    # Game score
+    # Отображение счета игры
     game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
     screen.blit(game_score_text, game_score_rect)
 
-    # Win/lose screens
+    # Экраны победы/проигрыша
     if ball.bottom > H:
         screen.fill((200,190,140))
         screen.blit(losetext, losetextRect)
@@ -136,21 +137,20 @@ while not done:
         screen.fill((255, 255, 255))
         screen.blit(wintext, wintextRect)
 
-    # Paddle Control
+    # Управление платформой
     key = pygame.key.get_pressed()
     if key[pygame.K_LEFT] and paddle.left > 0:
         paddle.left -= paddleSpeed
     if key[pygame.K_RIGHT] and paddle.right < W:
         paddle.right += paddleSpeed
 
-    # Shrink the paddle with time
-    paddleW = max(50, paddleW - 0.001 * FPS)
-    paddle.width = int(paddleW)
+    # Уменьшение скорости вращения весла со временем
+    paddleSpeed = max(5, paddleSpeed - 0.0001 * FPS)
     
-    # Increase ball speed with time
+    # Увеличение скорости мяча со временем
     ballSpeed += 0.0001 * FPS
 
-    # Apply bonus effect
+    # Применение бонусного эффекта
     if bonus_active:
         paddle.width = int(bonus_paddle_width)
         bonus_active = False
