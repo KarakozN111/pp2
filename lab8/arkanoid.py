@@ -120,11 +120,11 @@ while not done:
             bonus_active = True
             bonus_paddle_width += 50
         elif hitIndex not in unbreakable_indices:
-            block_list.pop(hitIndex)
-            color_list.pop(hitIndex)
-            game_score += 1
-            collision_sound.play()
-
+          if hitIndex not in unbreakable_indices:
+             block_list.pop(hitIndex)
+             color_list.pop(hitIndex)
+             game_score+=1
+             collision_sound.play()
     # Отображение счета игры
     game_score_text = game_score_fonts.render(f'Your game score is: {game_score}', True, (255, 255, 255))
     screen.blit(game_score_text, game_score_rect)
@@ -157,3 +157,4 @@ while not done:
 
     pygame.display.flip()
     clock.tick(FPS)
+
