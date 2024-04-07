@@ -54,7 +54,7 @@ def main():
         i = 0
         while i < len(points) - 1:
             if mode == 'draw_rect':
-                pygame.draw.rect(screen, (255, 255, 255), (points[i], (50, 50)))  # Draw rectangle
+                pygame.draw.rect(screen, (255, 255, 255), (points[i], (50, 25)))  # Draw rectangle
             elif mode == 'draw_circle':
                 pygame.draw.circle(screen, (255, 255, 255), points[i], radius)  # Draw circle
             elif mode == 'erase':
